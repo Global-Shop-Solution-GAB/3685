@@ -1,0 +1,180 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'f.intrinsic.debug.showcallerinfo
+
+V.Local.sZip.Declare(String)
+V.Local.sCity.declare(String)
+V.Local.sState.Declare(String)
+V.Local.iX.Declare(Long)
+V.Local.sCitySet.declare(String)
+V.Local.sShipState.Declare(String)
+V.Local.sShipZip.Declare(String)
+V.Local.sShipCitySet.declare(String)
+V.Local.bShipto.Declare(Boolean)
+
+V.Local.scol.Declare(String)
+V.Local.scolW.Declare(String)
+
+V.Local.sZip.Set("000018",11625)
+V.Local.sCitySet.Set("000016",11625)
+V.Local.sstate.Set("000017",11625)
+V.Local.sShipZip.Set("000015",11625)
+V.Local.sShipCitySet.Set("000013",11625)
+V.Local.sShipstate.Set("000014",11625)
+V.local.bShipto.set(True,11625)
+
+V.Local.sZip.Set("000015",11635)
+V.Local.sCitySet.Set("000013",11635)
+V.Local.sstate.Set("000014",11635)
+
+V.Local.sZip.Set("000013",14388)
+V.Local.sCitySet.Set("000011",14388)
+V.Local.sstate.Set("000012",14388)
+V.Local.sShipZip.Set("000023",14388)
+V.Local.sShipCitySet.Set("000019",14388)
+V.Local.sShipstate.Set("000020",14388)
+V.local.bShipto.set(True,14388)
+
+V.Local.sZip.Set("000023",14389)
+V.Local.sCitySet.Set("000019",14389)
+V.Local.sstate.Set("000020",14389)
+
+V.Local.sZip.Set("000013",29811)
+V.Local.sCitySet.Set("000011",29811)
+V.Local.sstate.Set("000012",29811)
+
+
+V.Local.sZip.Set("000023",29812)
+V.Local.sCitySet.Set("000019",29812)
+V.Local.sstate.Set("000020",29812)
+
+V.Local.sZip.Set("000010",14441)
+V.Local.sCitySet.Set("000008",14441)
+V.Local.sstate.Set("000009",14441)
+
+V.Local.sZip.Set("000028",33313)
+V.Local.sCitySet.Set("000026",33313)
+V.Local.sstate.Set("000027",33313)
+
+V.Local.sZip.Set("000015",10755)
+V.Local.sCitySet.Set("000013",10755)
+V.Local.sstate.Set("000014",10755)
+V.Local.sShipZip.Set("000018",10755)
+V.Local.sShipCitySet.Set("000016",10755)
+V.Local.sShipstate.Set("000017",10755)
+V.local.bShipto.set(True,10755)
+
+V.Local.sZip.Set("000018",10765)
+V.Local.sCitySet.Set("000016",10765)
+V.Local.sstate.Set("000017",10765)
+
+V.Local.sZip.Set("000064",14476)
+V.Local.sCitySet.Set("000062",14476)
+V.Local.sstate.Set("000063",14476)
+V.Local.sShipZip.Set("000067",14476)
+V.Local.sShipCitySet.Set("000065",14476)
+V.Local.sShipstate.Set("000066",14476)
+V.local.bShipto.set(True,14476)
+
+V.Local.sZip.Set("000067",14477)
+V.Local.sCitySet.Set("000065",14477)
+V.Local.sstate.Set("000066",14477)
+
+V.Local.sZip.Set("CRM-txtContZip-1",30667)
+V.Local.sCitySet.Set("CRM-txtContCity-1",30667)
+V.Local.sstate.Set("CRM-txtContState-1",30667)
+
+V.Local.sZip.Set("CRM-txtContZip-0",30666)
+V.Local.sCitySet.Set("CRM-txtContCity-0",30666)
+V.Local.sstate.Set("CRM-txtContstate-0",30666)
+
+'10755, 10765, 14476 and 14477.
+'30666 - Contact Primary Address Zip
+'30667
+'11625, 11635, 14388, 14389, 29811, 29812, 14441 and 33313.
+V.Local.scol.Set("City")
+V.Local.scolW.set(4000)
+
+F.ODBC.Connection!conX.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+
+F.Global.CRM.GetCitiesFromZip(v.passed.[V.Local.sZip],V.Local.sCity)
+F.Intrinsic.string.Instr(V.Local.sCity,"*!*",V.Local.iX)
+F.Intrinsic.Control.If(V.Local.iX,=,0)
+	F.Intrinsic.String.Concat("SELECT CITY, STATE FROM ATG_3685_ZIP WHERE ZIP = '",v.passed.[V.Local.sZip],"'",V.Local.sZip)
+
+	F.odbc.Connection!conX.OpenRecordsetRO("rst",V.Local.sZip)
+	F.Intrinsic.Control.If(V.odbc.conX!rst.EOF,=,False)
+		V.Passed.[v.local.sstate].set(V.odbc.conX!rst.FieldValTrim!State)
+		V.Passed.[v.local.scityset].Set(V.odbc.conX!rst.FieldValTrim!City)
+		V.Passed.[v.local.scityset].Set(V.Passed.[v.local.scityset].pcase)
+	F.Intrinsic.Control.endif
+	F.ODBC.conX!rst.Close
+	F.Intrinsic.Control.If(V.local.bShipto,=,True)
+		V.Passed.[v.local.sShipstate].set(V.Passed.[v.local.sstate])
+		V.Passed.[v.local.sShipcityset].Set(V.Passed.[v.local.scityset].pcase)
+	F.Intrinsic.Control.endif
+	F.odbc.Connection!conX.close
+	F.Intrinsic.Control.end
+F.Intrinsic.Control.EndIf
+
+Function.Intrinsic.UI.BrowserFromString("Select City",V.Local.sCity,"^&^","*!*",V.Local.scol,V.Local.sColW,V.Local.sCity)
+F.Intrinsic.Control.If(V.Local.scity,<>,"***CANCEL***")
+	F.Intrinsic.string.Split(V.Local.scity,"*!*",V.Local.sCity)
+	
+	F.Intrinsic.String.Concat("SELECT STATE FROM ATG_3685_ZIP WHERE ZIP = '",v.passed.[V.Local.sZip],"'",V.Local.sZip)
+
+	F.odbc.Connection!conX.OpenRecordsetRO("rst",V.Local.sZip)
+	F.Intrinsic.Control.If(V.odbc.conX!rst.EOF,=,False)
+		V.Passed.[v.local.sstate].set(V.odbc.conX!rst.FieldValTrim!State)
+	F.Intrinsic.Control.endif
+	F.ODBC.conX!rst.Close
+	F.odbc.Connection!conX.close
+	V.Passed.[v.local.scityset].Set(V.Local.sCity.pcase)
+	F.Intrinsic.Control.If(V.local.bShipto,=,True)
+		V.Passed.[v.local.sShipstate].set(V.Passed.[v.local.sstate])
+		V.Passed.[v.local.sShipcityset].Set(V.Passed.[v.local.scityset].pcase)
+	F.Intrinsic.Control.endif
+F.Intrinsic.Control.EndIf
+F.intrinsic.control.end
+
+Program.Sub.Main.End
+
+Program.Sub.Comments.Start
+${$0$}$ATG_3685_City_From_Zip$}$RLK$}$4/5/2016
+${$1$}$$}$$}$13$}$33313$}$Zip Code Change Hook$}$4/5/2016 8:23:11 AM$}$(Program: ORD202; Screen: OES202A)
+
+${$1$}$$}$$}$12$}$14441$}$ARS002S-ZIP-CODE-HOOK$}$4/5/2016 8:22:47 AM$}$(Program: ORD064GM; Screen: ARS002S)
+
+${$1$}$$}$$}$11$}$29812$}$Shipping Zip Change Hook$}$4/5/2016 8:22:00 AM$}$(Program: CRM004; Screen: PPSM001)
+
+${$1$}$$}$$}$10$}$29811$}$Billing Zip Change Hook$}$4/5/2016 8:21:32 AM$}$(Program: CRM004; Screen: PPSM001)
+
+${$1$}$$}$$}$9$}$14389$}$Shipping Zip Changed$}$4/5/2016 8:21:09 AM$}$(Program: AR0020GI; Screen: ARS002A1)
+
+${$1$}$$}$$}$8$}$14388$}$Billing Zip Changed$}$4/5/2016 8:20:50 AM$}$(Program: AR0020GI; Screen: ARS002A1)
+
+${$1$}$$}$$}$7$}$11635$}$Ship Zip Code Hook$}$4/5/2016 8:17:27 AM$}$(Program: ORD200; Screen: OES0200A)
+
+${$1$}$$}$$}$6$}$11625$}$Bill Zip Code Hook$}$4/5/2016 8:16:35 AM$}$(Program: ORD200; Screen: OES0200A)
+
+${$1$}$$}$$}$5$}$42967$}$CRM.NET-CNTCT-SHIP-ZIP$}$4/5/2016 8:15:47 AM$}$(Program: Global_Shop_CRM.exe; Screen: )
+
+${$1$}$$}$$}$4$}$42966$}$CRM.NET-CTNCT-PRIMARY-ZIP$}$4/5/2016 8:15:23 AM$}$(Program: Global_Shop_CRM.exe; Screen: )
+
+${$1$}$$}$$}$3$}$14477$}$PAY-ZIP-HOOK$}$4/5/2016 8:15:05 AM$}$(Program: AP0020GI; Screen: APS002A)
+
+${$1$}$$}$$}$2$}$14476$}$BUY-ZIP-HOOK$}$4/5/2016 8:14:43 AM$}$(Program: AP0020GI; Screen: APS002A)
+
+${$1$}$$}$$}$1$}$10765$}$QTS0200A-SHIP-ZIP-HOOK$}$4/5/2016 8:14:23 AM$}$(Program: QTE200; Screen: QTS0200A)
+
+${$1$}$$}$$}$0$}$10755$}$QTS0200A-BILL-ZIP-HOOK$}$4/5/2016 8:14:01 AM$}$(Program: QTE200; Screen: QTS0200A)
+
+Program.Sub.Comments.End
+
